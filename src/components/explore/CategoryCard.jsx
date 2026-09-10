@@ -1,12 +1,7 @@
 import React from 'react';
-import softwareVideo from '/videos/software.mp4';
-import educationVideo from '/videos/education.mp4';
-import moviesVideo from '/videos/movies.mp4';
-import imagesVideo from '/videos/images.mp4';
-import videosVideo from '/videos/videos.mp4';
-import sfxVideo from '/videos/sfx.mp4';
 
-const CLOUDINARY_URL = 'https://res.cloudinary.com/eev7ddsv/video/upload/v1789067909/0910.mp4';
+const CLOUDINARY_URL =
+  'https://res.cloudinary.com/eev7ddsv/video/upload/v1789067909/0910.mp4';
 
 export default function CategoryCard({
   category,
@@ -26,17 +21,8 @@ export default function CategoryCard({
     '--card-gradient': category.gradient
   };
 
-  // Map category IDs to video imports (now all use the same Cloudinary URL)
-  const videoMap = {
-    software: softwareVideo,
-    education: educationVideo,
-    movies: moviesVideo,
-    images: imagesVideo,
-    videos: videosVideo,
-    sfx: sfxVideo
-  };
-
-  // Use Cloudinary URL for all categories; lazy‑load with metadata preload
+  // All categories currently use the same Cloudinary video.
+  // Replace individual URLs here later when the remaining videos are uploaded.
   const videoSrc = CLOUDINARY_URL;
 
   const handleClick = (e) => {
@@ -73,11 +59,11 @@ export default function CategoryCard({
             loop
             playsInline
             preload="metadata"
-            loading="lazy"
             aria-hidden="true"
           >
             <source src={videoSrc} type="video/mp4" />
           </video>
+
           {/* Dark overlay for text readability */}
           <div className="card-video-overlay" aria-hidden="true" />
         </>
@@ -92,7 +78,7 @@ export default function CategoryCard({
       {/* Ambient Top Light Beam */}
       <div className="card-ambient-light" aria-hidden="true" />
 
-      {/* ── TOP BLOCK: index row + title, all anchored to top ── */}
+      {/* ── TOP BLOCK: index row + title ── */}
       <div className="card-top-block">
         {/* Meta row: number only */}
         <div className="card-top-row">
@@ -103,10 +89,10 @@ export default function CategoryCard({
         <h3 className="card-title">{category.title}</h3>
       </div>
 
-      {/* ── SPACER: grows to push footer to bottom ── */}
+      {/* ── SPACER ── */}
       <div className="card-spacer" aria-hidden="true" />
 
-      {/* ── FOOTER: Enter action anchored to bottom ── */}
+      {/* ── FOOTER ── */}
       <div className="card-footer">
         <div className="card-action-btn">
           <span>Enter</span>
