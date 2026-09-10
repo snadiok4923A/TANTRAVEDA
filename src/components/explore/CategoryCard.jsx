@@ -6,6 +6,8 @@ import imagesVideo from '/videos/images.mp4';
 import videosVideo from '/videos/videos.mp4';
 import sfxVideo from '/videos/sfx.mp4';
 
+const CLOUDINARY_URL = 'https://res.cloudinary.com/eev7ddsv/video/upload/v1789067909/0910.mp4';
+
 export default function CategoryCard({
   category,
   index,
@@ -24,7 +26,7 @@ export default function CategoryCard({
     '--card-gradient': category.gradient
   };
 
-  // Map category IDs to video imports
+  // Map category IDs to video imports (now all use the same Cloudinary URL)
   const videoMap = {
     software: softwareVideo,
     education: educationVideo,
@@ -34,7 +36,8 @@ export default function CategoryCard({
     sfx: sfxVideo
   };
 
-  const videoSrc = videoMap[category.id];
+  // Use Cloudinary URL for all categories; lazy‑load with metadata preload
+  const videoSrc = CLOUDINARY_URL;
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -69,6 +72,8 @@ export default function CategoryCard({
             muted
             loop
             playsInline
+            preload="metadata"
+            loading="lazy"
             aria-hidden="true"
           >
             <source src={videoSrc} type="video/mp4" />
