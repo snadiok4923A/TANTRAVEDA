@@ -1,7 +1,7 @@
 import React from 'react';
 
 const CLOUDINARY_URL =
-  'https://res.cloudinary.com/eev7ddsv/video/upload/v1789067909/0910.mp4';
+  'https://res.cloudinary.com/eev7ddsv/video/upload/v1789069854/0910.mp4';
 
 export default function CategoryCard({
   category,
