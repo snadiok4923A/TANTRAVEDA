@@ -1,10 +1,10 @@
 import React from 'react';
-import softwareVideo from '../../assets/software.mp4';
-import educationVideo from '../../assets/education.mp4';
-import moviesVideo from '../../assets/movies.mp4';
-import imagesVideo from '../../assets/images.mp4';
-import videosVideo from '../../assets/videos.mp4';
-import sfxVideo from '../../assets/sfx.mp4';
+import softwareVideo from '/videos/software.mp4';
+import educationVideo from '/videos/education.mp4';
+import moviesVideo from '/videos/movies.mp4';
+import imagesVideo from '/videos/images.mp4';
+import videosVideo from '/videos/videos.mp4';
+import sfxVideo from '/videos/sfx.mp4';
 
 export default function CategoryCard({
   category,
