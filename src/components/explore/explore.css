@@ -171,6 +171,37 @@
   will-change: box-shadow, opacity;
 }
 
+/* ============================================================
+   CARD BACKGROUND VIDEO
+   ============================================================ */
+
+.card-video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.card-video-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.45) 50%,
+    rgba(0, 0, 0, 0.40) 100%
+  );
+  border-radius: 20px;
+  z-index: 1;
+  pointer-events: none;
+}
+
 /* Sibling dimming when one card is hovered */
 .category-card.sibling-dimmed {
   opacity: 0.55;
@@ -213,11 +244,14 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 180px;
-  background: var(--card-gradient, radial-gradient(circle at 50% 0%, rgba(167, 139, 250, 0.25) 0%, transparent 70%));
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 0%, rgba(167, 139, 250, 0.12) 0%, transparent 80%);
   pointer-events: none;
-  opacity: 0.75;
+  opacity: 0.6;
+  z-index: 4;
   transition: opacity 0.4s ease;
+  border-radius: 20px;
 }
 
 .category-card.is-hovered .card-ambient-light {
@@ -232,6 +266,7 @@
   pointer-events: none;
   border-color: rgba(255, 255, 255, 0.2);
   transition: border-color 0.4s ease;
+  z-index: 5;
 }
 
 .category-card.is-hovered .corner-bracket {
@@ -245,23 +280,29 @@
 
 /* Card Top Row */
 .card-top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   position: relative;
-  z-index: 2;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  z-index: 1;
+  height: 30px;
 }
 
 .card-index {
+  position: absolute;
+  left: 8px;
+  top: 14px;
   font-family: 'Space Grotesk', monospace;
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.2em;
   color: var(--card-accent, #a78bfa);
   text-shadow: 0 0 10px var(--card-glow, rgba(167, 139, 250, 0.4));
+  z-index: 3;
 }
 
 .card-status-pill {
+  display: none;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 0.65rem;
   font-weight: 600;
@@ -274,6 +315,12 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* Card Top Block */
+.card-top-block {
+  position: relative;
+  z-index: 4;
+}
+
 /* Card Body — generous spacing keeps title+tagline vertically centred */
 .card-body {
   position: relative;
@@ -283,14 +330,24 @@
 }
 
 .card-title {
+  position: absolute;
+  left: 32px;
+  top: 68px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  direction: rtl;
   font-family: 'Bruno Ace', sans-serif;
-  font-size: 1.9rem;
+  font-size: 1.05rem;
   font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: 0.03em;
+  line-height: 0.9;
+  letter-spacing: 0.01em;
   color: #ffffff;
-  margin-bottom: 1rem;
+  margin: 0;
+  white-space: nowrap;
+  z-index: 4;
   transition: color 0.3s ease;
+  max-height: 350px;
+  overflow: hidden;
 }
 
 .category-card.is-hovered .card-title {
@@ -299,6 +356,7 @@
 }
 
 .card-tagline {
+  display: none;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 0.82rem;
   font-weight: 400;
@@ -310,6 +368,7 @@
 }
 
 .card-description {
+  display: none;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 0.85rem;
   font-weight: 300;
@@ -324,7 +383,7 @@
 
 /* Card Tags */
 .card-tags {
-  display: flex;
+  display: none;
   flex-wrap: wrap;
   gap: 0.4rem;
   margin-top: 1.1rem;
@@ -345,7 +404,7 @@
 /* Card Footer — action button only, flush to bottom */
 .card-footer {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
   padding-top: 1rem;
   display: flex;
@@ -354,7 +413,7 @@
 }
 
 .card-stats-preview {
-  display: flex;
+  display: none;
   gap: 0.9rem;
 }
 

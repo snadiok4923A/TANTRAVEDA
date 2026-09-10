@@ -1,4 +1,10 @@
 import React from 'react';
+import softwareVideo from '../../assets/software.mp4';
+import educationVideo from '../../assets/education.mp4';
+import moviesVideo from '../../assets/movies.mp4';
+import imagesVideo from '../../assets/images.mp4';
+import videosVideo from '../../assets/videos.mp4';
+import sfxVideo from '../../assets/sfx.mp4';
 
 export default function CategoryCard({
   category,
@@ -17,6 +23,18 @@ export default function CategoryCard({
     '--card-glow': category.glowColor,
     '--card-gradient': category.gradient
   };
+
+  // Map category IDs to video imports
+  const videoMap = {
+    software: softwareVideo,
+    education: educationVideo,
+    movies: moviesVideo,
+    images: imagesVideo,
+    videos: videosVideo,
+    sfx: sfxVideo
+  };
+
+  const videoSrc = videoMap[category.id];
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -42,6 +60,24 @@ export default function CategoryCard({
         }
       }}
     >
+      {/* ── BACKGROUND VIDEO ── */}
+      {videoSrc && (
+        <>
+          <video
+            className="card-video-bg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            aria-hidden="true"
+          >
+            <source src={videoSrc} type="video/mp4" />
+          </video>
+          {/* Dark overlay for text readability */}
+          <div className="card-video-overlay" aria-hidden="true" />
+        </>
+      )}
+
       {/* Corner Cybernetic Brackets */}
       <span className="corner-bracket corner-tl" aria-hidden="true" />
       <span className="corner-bracket corner-tr" aria-hidden="true" />
@@ -51,19 +87,21 @@ export default function CategoryCard({
       {/* Ambient Top Light Beam */}
       <div className="card-ambient-light" aria-hidden="true" />
 
-      {/* Card Header: index + status */}
-      <div className="card-top-row">
-        <span className="card-index">// {category.number}</span>
-        <span className="card-status-pill">FREE ACCESS</span>
-      </div>
+      {/* ── TOP BLOCK: index row + title, all anchored to top ── */}
+      <div className="card-top-block">
+        {/* Meta row: number only */}
+        <div className="card-top-row">
+          <span className="card-index">{category.number}</span>
+        </div>
 
-      {/* Card Identity: title + tagline only */}
-      <div className="card-body">
+        {/* Title */}
         <h3 className="card-title">{category.title}</h3>
-        <p className="card-tagline">{category.tagline}</p>
       </div>
 
-      {/* Card Footer: Enter action only */}
+      {/* ── SPACER: grows to push footer to bottom ── */}
+      <div className="card-spacer" aria-hidden="true" />
+
+      {/* ── FOOTER: Enter action anchored to bottom ── */}
       <div className="card-footer">
         <div className="card-action-btn">
           <span>Enter</span>
