@@ -1,7 +1,7 @@
 function Navigation() {
   return (
     <nav>
-      <div className="logo">NEBULA</div>
+      <div className="logo">T A N T R A V E D A</div>
       <div className="nav-links">
         <a href="#product">Product</a>
         <a href="#experiments">Experiments</a>

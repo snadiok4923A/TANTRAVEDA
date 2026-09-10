@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import portalImage from '../assets/portal-image.jpg';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,8 +31,8 @@ const NebulaCanvas = () => {
   const config = {
     fiberCount: 160,
     segmentsPerFiber: 150,
-    waveWidth: 35,
-    waveHeight: 12
+    waveWidth: 30, // Reduced from 35 to reduce overall width slightly
+    waveHeight: 7  // Reduced from 12 (approx 40% reduction in vertical spread)
   };
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -40,6 +41,7 @@ const NebulaCanvas = () => {
   const lerp = (a, b, t) => a + (b - a) * t;
   const smoothstep = (t) => t * t * (3 - 2 * t);
   const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+  const smootherstep = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 
   // Smooth low-frequency noise (Perlin-like)
   const noise2D = (x, y) => {
@@ -114,10 +116,10 @@ const NebulaCanvas = () => {
     const hiddenTexture = createPlaceholder();
 
     // Try loading from assets folder
-    // User can place their image at: src/assets/portal-image.jpg (or .png)
+    // User can place their image in the assets folder and import it
     const textureLoader = new THREE.TextureLoader();
     textureLoader.load(
-      '/src/assets/portal-image.jpg',
+      portalImage,
       (texture) => {
         if (portalPlaneRef.current) {
           portalPlaneRef.current.material.uniforms.uTexture.value = texture;
@@ -129,7 +131,7 @@ const NebulaCanvas = () => {
       undefined,
       () => {
         // Fallback to placeholder if image not found
-        console.log('Portal image not found, using placeholder. Add your image to src/assets/portal-image.jpg');
+        console.log('Portal image not found, using placeholder.');
       }
     );
 
@@ -291,92 +293,136 @@ const NebulaCanvas = () => {
         const progress = scrollProgress;
         let minDist = Infinity;
 
-        // === SMOOTHLY INTERPOLATED PARAMETERS ===
-        const baseAmplitude = lerp(1.8, 2.8, 0.5 + Math.sin(progress * Math.PI * 0.4) * 0.5);
-        const waveFrequency = lerp(1.5, 2.2, smoothstep((Math.sin(progress * Math.PI * 0.3) * 0.5 + 0.5)));
-        const verticalBend = lerp(0, 1, smoothstep(Math.min(progress / 2.5, 1)));
-        const convergePeak = 2.4;
-        const convergeDist = Math.abs(progress - convergePeak);
-        const convergeStrength = Math.max(0, 1 - convergeDist / 1.5);
-        const crossPeak = 3.0;
-        const crossDist = Math.abs(progress - crossPeak);
-        const crossStrength = Math.max(0, 1 - crossDist / 2.5);
-        const diagonalStrength = smoothstep(Math.max(0, Math.min((progress - 4.5) / 1.2, 1)));
-        const expansionStrength = smoothstep(Math.max(0, Math.min((progress - 5.5) / 1.2, 1)));
+        // === DISCRETE MORPH TARGETS SYSTEM ===
+        const currentStage = Math.floor(progress);
+        const nextStage = Math.min(currentStage + 1, 6);
+        const localT = progress - currentStage;
+        const easedT = smootherstep(Math.max(0, Math.min(localT, 1)));
+
+        // Helper to generate static parameters for a given integer stage
+        const getParamsForStage = (stageIndex) => {
+          // Reduced baseAmplitude for tighter curves
+          const baseAmplitude = lerp(1.2, 1.8, 0.5 + Math.sin(stageIndex * Math.PI * 0.4) * 0.5);
+          const waveFrequency = lerp(1.5, 2.2, smoothstep((Math.sin(stageIndex * Math.PI * 0.3) * 0.5 + 0.5)));
+          
+          const verticalBend = smootherstep(Math.max(0, Math.min(stageIndex / 2.5, 1)));
+          
+          const convergePeak = 2.4;
+          const convergeRange = 1.5;
+          const convergeDist = Math.abs(stageIndex - convergePeak) / convergeRange;
+          const convergeStrength = 1 - smootherstep(Math.max(0, Math.min(convergeDist, 1)));
+          
+          const crossPeak = 3.0;
+          const crossRange = 2.5;
+          const crossDist = Math.abs(stageIndex - crossPeak) / crossRange;
+          const crossStrength = 1 - smootherstep(Math.max(0, Math.min(crossDist, 1)));
+          
+          const diagonalStrength = smootherstep(Math.max(0, Math.min((stageIndex - 4.5) / 1.2, 1)));
+          const expansionStrength = smootherstep(Math.max(0, Math.min((stageIndex - 5.5) / 1.2, 1)));
+
+          return { baseAmplitude, waveFrequency, verticalBend, convergeStrength, crossStrength, diagonalStrength, expansionStrength };
+        };
+
+        const paramsA = getParamsForStage(currentStage);
+        const paramsB = getParamsForStage(nextStage);
 
         // === BUILD SMOOTH FIBER PATH ===
         for (let i = 0; i < config.segmentsPerFiber; i++) {
           const t_segment = i / config.segmentsPerFiber;
 
-          let x = (t_segment - 0.5) * config.waveWidth;
-          let y = this.baseY;
-          let z = this.depthLayer * 1.5;
-
-          // Primary wave motion
-          const wave1 = Math.sin(t_segment * Math.PI * waveFrequency + t + this.timeOffset) * baseAmplitude;
-          const wave2 = Math.sin(t_segment * Math.PI * waveFrequency * 1.6 + t * 0.6 + this.timeOffset + Math.PI / 3) * baseAmplitude * 0.35;
-          y += wave1 + wave2;
-          z += Math.sin(t_segment * Math.PI * 2.5 + t * 0.5 + this.timeOffset) * 1.8;
-
-          // Low-frequency organic motion
+          // Low-frequency organic motion (calculated ONCE per vertex to save performance)
           const noiseScale = 0.6;
           const noiseX = noise2D(t_segment * noiseScale + this.spatialOffset, t * 0.15 + this.timeOffset * 0.1) * 0.5;
-          const noiseY = noise2D(t_segment * noiseScale + this.spatialOffset + 50, t * 0.12 + this.timeOffset * 0.1) * 0.4;
+          // Reduced vertical noise (noiseY) to prevent vertical spread
+          const noiseY = noise2D(t_segment * noiseScale + this.spatialOffset + 50, t * 0.12 + this.timeOffset * 0.1) * 0.25;
           const noiseZ = noise2D(t_segment * noiseScale + this.spatialOffset + 100, t * 0.18 + this.timeOffset * 0.1) * 0.8;
 
-          x += noiseX;
-          y += noiseY;
-          z += noiseZ;
+          let xA = 0, yA = 0, zA = 0;
+          let xB = 0, yB = 0, zB = 0;
 
-          // Morphing transformations
-          if (verticalBend > 0) {
-            const bendCurve = Math.sin((t_segment - 0.5) * Math.PI * 1.2) * 4.5;
-            y += bendCurve * verticalBend;
-          }
+          // Inline function to generate a complete physical shape configuration
+          const applyShape = (params, isShapeA) => {
+            let x = (t_segment - 0.5) * config.waveWidth;
+            let y = this.baseY;
+            let z = this.depthLayer * 1.5;
 
-          if (convergeStrength > 0) {
-            const centerPull = 1 - Math.abs(t_segment - 0.5) * 2;
-            const squeeze = 1 - centerPull * 0.55 * convergeStrength;
-            y *= squeeze;
-            const twist = Math.sin(t_segment * Math.PI * 2 + t * 0.4) * 0.8;
-            z += twist * convergeStrength;
-          }
+            // Primary wave motion based on stage frequency
+            const wave1 = Math.sin(t_segment * Math.PI * params.waveFrequency + t + this.timeOffset) * params.baseAmplitude;
+            const wave2 = Math.sin(t_segment * Math.PI * params.waveFrequency * 1.6 + t * 0.6 + this.timeOffset + Math.PI / 3) * params.baseAmplitude * 0.35;
+            y += wave1 + wave2;
+            z += Math.sin(t_segment * Math.PI * 2.5 + t * 0.5 + this.timeOffset) * 1.8;
 
-          if (crossStrength > 0) {
-            const fiberPosition = (this.normalizedY - 0.5) * 2;
-            const easedCrossStrength = smoothstep(crossStrength);
-            const crossShift = fiberPosition * t_segment * 7 * easedCrossStrength;
-            y += crossShift;
-            const crossDepth = Math.sin(t_segment * Math.PI * 1.8 + t * 0.4) * 2.5;
-            z += crossDepth * easedCrossStrength;
-            const rotationEffect = Math.cos(t_segment * Math.PI * 2 + t * 0.3) * 1.2;
-            z += rotationEffect * easedCrossStrength * 0.5;
-          }
+            // Shared organic noise
+            x += noiseX;
+            y += noiseY;
+            z += noiseZ;
 
-          if (diagonalStrength > 0) {
-            const diagonalShift = t_segment * 4.5 * diagonalStrength;
-            y += diagonalShift - 2.25 * diagonalStrength;
-            const diagWave = Math.sin(t_segment * Math.PI * 2 + t + this.timeOffset) * 1.5;
-            y += diagWave * (1 - diagonalStrength * 0.4);
-          }
+            // Morphing transformations (all amplitudes reduced for a tighter flow)
+            if (params.verticalBend > 0) {
+              const bendCurve = Math.sin((t_segment - 0.5) * Math.PI * 1.2) * 2.8; // Reduced from 4.5
+              y += bendCurve * params.verticalBend;
+            }
 
-          if (expansionStrength > 0) {
-            y *= 1 + expansionStrength * 0.35;
-            const ribbonWave = Math.sin(t_segment * Math.PI * 1.6 + t * 0.4 + this.timeOffset) * 3.2;
-            y += ribbonWave * expansionStrength;
-            const depthSwell = Math.sin(t_segment * Math.PI * 2 + t * 0.35) * 3;
-            z += depthSwell * expansionStrength;
-          }
+            if (params.convergeStrength > 0) {
+              const centerPull = 1 - Math.abs(t_segment - 0.5) * 2;
+              const squeeze = 1 - centerPull * 0.55 * params.convergeStrength;
+              y *= squeeze;
+              const twist = Math.sin(t_segment * Math.PI * 2 + t * 0.4) * 0.8;
+              z += twist * params.convergeStrength;
+            }
 
-          this.basePoints[i].set(x, y, z);
+            if (params.crossStrength > 0) {
+              const fiberPosition = (this.normalizedY - 0.5) * 2;
+              const easedCrossStrength = smoothstep(params.crossStrength);
+              const crossShift = fiberPosition * t_segment * 4.5 * easedCrossStrength; // Reduced from 7
+              y += crossShift;
+              const crossDepth = Math.sin(t_segment * Math.PI * 1.8 + t * 0.4) * 2.5;
+              z += crossDepth * easedCrossStrength;
+              const rotationEffect = Math.cos(t_segment * Math.PI * 2 + t * 0.3) * 1.2;
+              z += rotationEffect * easedCrossStrength * 0.5;
+            }
+
+            if (params.diagonalStrength > 0) {
+              const diagonalShift = t_segment * 3.0 * params.diagonalStrength; // Reduced from 4.5
+              y += diagonalShift - 1.5 * params.diagonalStrength; // Reduced from 2.25
+              const diagWave = Math.sin(t_segment * Math.PI * 2 + t + this.timeOffset) * 1.5;
+              y += diagWave * (1 - params.diagonalStrength * 0.4);
+            }
+
+            if (params.expansionStrength > 0) {
+              y *= 1 + params.expansionStrength * 0.2; // Reduced from 0.35
+              const ribbonWave = Math.sin(t_segment * Math.PI * 1.6 + t * 0.4 + this.timeOffset) * 2.0; // Reduced from 3.2
+              y += ribbonWave * params.expansionStrength;
+              const depthSwell = Math.sin(t_segment * Math.PI * 2 + t * 0.35) * 3;
+              z += depthSwell * params.expansionStrength;
+            }
+
+            if (isShapeA) {
+              xA = x; yA = y; zA = z;
+            } else {
+              xB = x; yB = y; zB = z;
+            }
+          };
+
+          // Evaluate Shape A and Shape B completely
+          applyShape(paramsA, true);
+          applyShape(paramsB, false);
+
+          // Continuously interpolate between the two physical targets
+          const finalX = lerp(xA, xB, easedT);
+          const finalY = lerp(yA, yB, easedT);
+          const finalZ = lerp(zA, zB, easedT);
+
+          this.basePoints[i].set(finalX, finalY, finalZ);
 
           // Track distance to unperturbed fiber
           if (mouseInfluence.active) {
-            const dx = x - mouseInfluence.x;
-            const dy = y - mouseInfluence.y;
+            const dx = finalX - mouseInfluence.x;
+            const dy = finalY - mouseInfluence.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < minDist) minDist = dist;
           }
+
         }
 
         return minDist;
@@ -408,24 +454,7 @@ const NebulaCanvas = () => {
           this.points[i].set(x, y, z);
         }
 
-        // Energy pulse effect
-        this.energyInfluence = 0;
-        if (energyPulse.active) {
-          const avgX = this.points.reduce((sum, p) => sum + p.x, 0) / this.points.length;
-          const normalizedX = (avgX + config.waveWidth / 2) / config.waveWidth;
-          const energyPos = energyPulse.direction > 0 ? energyPulse.progress : 1 - energyPulse.progress;
-          const dist = Math.abs(normalizedX - energyPos);
-          const pulseWidth = 0.15;
-          const coreWidth = 0.08;
-
-          if (dist < pulseWidth) {
-            if (dist < coreWidth) {
-              this.energyInfluence = smoothstep(1 - dist / coreWidth);
-            } else {
-              this.energyInfluence = smoothstep(1 - (dist - coreWidth) / (pulseWidth - coreWidth)) * 0.6;
-            }
-          }
-        }
+        // Energy pulse effect is now handled per-vertex in the main loop
       }
     }
 
@@ -495,11 +524,11 @@ const NebulaCanvas = () => {
           // Energy pulse boost
           if (vEnergyBoost > 0.0) {
             // Brighten towards white-lavender
-            vec3 energyColor = mix(glow, vec3(1.0, 0.95, 1.0), vEnergyBoost * 0.7);
-            glow = energyColor * (1.0 + vEnergyBoost * 1.2);
+            vec3 energyColor = mix(glow, vec3(1.0, 0.95, 1.0), vEnergyBoost * 0.55);
+            glow = energyColor * (1.0 + vEnergyBoost * 0.7);
           }
 
-          float alpha = vOpacity * (0.75 + vEnergyBoost * 0.25);
+          float alpha = vOpacity * (0.75 + vEnergyBoost * 0.18);
           gl_FragColor = vec4(glow, alpha);
         }
       `,
@@ -662,13 +691,47 @@ const NebulaCanvas = () => {
       fibers.forEach(fiber => {
         fiber.applyDisplacementAndEnergy(interactionStrength, mouseInfluence, energyPulse);
 
-        fiber.points.forEach((point) => {
+        fiber.points.forEach((point, i) => {
           const offset = vertexIndex * 3;
           particleSystem.geometry.attributes.position.array[offset] = point.x;
           particleSystem.geometry.attributes.position.array[offset + 1] = point.y;
           particleSystem.geometry.attributes.position.array[offset + 2] = point.z;
 
-          particleSystem.geometry.attributes.energyBoost.array[vertexIndex] = fiber.energyInfluence;
+          let energyInfluence = 0;
+          if (energyPulse.active) {
+            const fiberProgress = i / (config.segmentsPerFiber - 1);
+            
+            // Map the position from -0.15 to 1.15 so the energy completely enters and exits the wave
+            const rawProgress = energyPulse.direction > 0 ? energyPulse.progress : 1 - energyPulse.progress;
+            const energyPos = (rawProgress * 1.3) - 0.15;
+            
+            const diff = fiberProgress - energyPos;
+            const isBehind = energyPulse.direction > 0 ? (diff < 0) : (diff > 0);
+            
+            const dist = Math.abs(diff);
+            const leadingWidth = 0.03;
+            const trailingWidth = 0.08; // Much narrower luminous trail
+            const width = isBehind ? trailingWidth : leadingWidth;
+            
+            energyInfluence = Math.exp(-(dist * dist) / (width * width));
+            
+            // Explicit boundary fade to ensure no lingering edge shine
+            if (energyPulse.direction > 0) {
+              if (energyPos > 0.9) {
+                // Smoothly fade out the tail as the core exits (0.9 to 1.05)
+                const fade = Math.max(0, 1.0 - (energyPos - 0.9) / 0.15);
+                energyInfluence *= fade;
+              }
+            } else {
+              if (energyPos < 0.1) {
+                // Smoothly fade out the tail as the core exits (0.1 down to -0.05)
+                const fade = Math.max(0, (energyPos + 0.05) / 0.15);
+                energyInfluence *= fade;
+              }
+            }
+          }
+
+          particleSystem.geometry.attributes.energyBoost.array[vertexIndex] = energyInfluence;
           vertexIndex++;
         });
       });
