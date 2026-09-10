@@ -51,41 +51,20 @@ export default function CategoryCard({
       {/* Ambient Top Light Beam */}
       <div className="card-ambient-light" aria-hidden="true" />
 
-      {/* Card Header Info */}
+      {/* Card Header: index + status */}
       <div className="card-top-row">
         <span className="card-index">// {category.number}</span>
         <span className="card-status-pill">FREE ACCESS</span>
       </div>
 
-      {/* Card Body */}
+      {/* Card Identity: title + tagline only */}
       <div className="card-body">
         <h3 className="card-title">{category.title}</h3>
         <p className="card-tagline">{category.tagline}</p>
-        <p className="card-description">{category.description}</p>
-
-        {/* Tags */}
-        <div className="card-tags">
-          {category.tags.slice(0, 3).map((tag, i) => (
-            <span key={i} className="card-tag">
-              {tag}
-            </span>
-          ))}
-        </div>
       </div>
 
-      {/* Card Footer */}
+      {/* Card Footer: Enter action only */}
       <div className="card-footer">
-        <div className="card-stats-preview">
-          <div className="card-stat-item">
-            <span className="card-stat-value">{category.stats.items}</span>
-            <span className="card-stat-label">Available</span>
-          </div>
-          <div className="card-stat-item">
-            <span className="card-stat-value">{category.stats.access}</span>
-            <span className="card-stat-label">License</span>
-          </div>
-        </div>
-
         <div className="card-action-btn">
           <span>Enter</span>
           <span className="card-action-arrow">→</span>

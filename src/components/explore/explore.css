@@ -274,21 +274,22 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* Card Body */
+/* Card Body — generous spacing keeps title+tagline vertically centred */
 .card-body {
   position: relative;
   z-index: 2;
-  margin: 1.5rem 0;
+  margin: auto 0; /* flex-grow equivalent: pushes evenly between header & footer */
+  padding: 2.5rem 0 1.5rem 0;
 }
 
 .card-title {
   font-family: 'Bruno Ace', sans-serif;
-  font-size: 1.65rem;
+  font-size: 1.9rem;
   font-weight: 400;
-  line-height: 1.25;
+  line-height: 1.2;
   letter-spacing: 0.03em;
   color: #ffffff;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
   transition: color 0.3s ease;
 }
 
@@ -299,12 +300,13 @@
 
 .card-tagline {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.07em;
   color: var(--card-accent, #a78bfa);
-  margin-bottom: 0.9rem;
   text-transform: uppercase;
+  line-height: 1.5;
+  opacity: 0.85;
 }
 
 .card-description {
@@ -340,7 +342,7 @@
   border-radius: 4px;
 }
 
-/* Card Footer */
+/* Card Footer — action button only, flush to bottom */
 .card-footer {
   position: relative;
   z-index: 2;
@@ -348,7 +350,7 @@
   padding-top: 1rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 .card-stats-preview {
