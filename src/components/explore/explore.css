@@ -15,15 +15,34 @@
   box-sizing: border-box;
 }
 
-/* Subtle background vignette and cosmic nebula glow */
+/* Deep dark studio background - no waves */
 .explore-backdrop {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 30%, rgba(167, 139, 250, 0.08) 0%, transparent 60%),
-              radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
-              radial-gradient(circle at 20% 70%, rgba(232, 121, 249, 0.05) 0%, transparent 50%);
+  background: linear-gradient(
+    135deg,
+    #0a0a0f 0%,
+    #0d0d14 25%,
+    #0a0a0f 50%,
+    #0c0c12 75%,
+    #0a0a0f 100%
+  );
   z-index: 1;
+}
+
+/* Subtle ambient glow effect */
+.explore-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(100, 80, 120, 0.08) 0%,
+    rgba(60, 50, 80, 0.04) 30%,
+    transparent 70%
+  );
+  pointer-events: none;
 }
 
 /* (Header, badge, toggle, and hint elements removed — deck is the sole focus) */
@@ -49,7 +68,7 @@
   justify-content: center;
   z-index: 2;
   margin: 0;
-  padding: 2rem 0 3rem 0;
+  padding: 8rem 0 3rem 0;
   overflow: visible;
 }
 
@@ -99,45 +118,60 @@
 }
 
 /* ============================================================
-   CARD REFLECTION
+   CARD REFLECTION - Enhanced Studio Floor Effect
    ============================================================ */
 
 /*
-  The reflection is a pseudo-surface that sits directly below
-  each card. It uses a gradient mask to fade into black so it
-  looks like a glass-surface reflection. Opacity is intentionally
-  low to remain elegant and non-distracting.
+  Visible vertical reflection extending downward from each card,
+  creating a realistic glossy floor reflection. Reflects the card's
+  video colors and light tones with strong blur for a diffuse glow effect.
 */
 .card-reflection {
   width: 330px;
-  height: 120px;
-  margin-top: -4px; /* butt up against the card bottom */
-  border-radius: 0 0 20px 20px;
-  /* Mirror the card colors with a very faint base */
+  height: 200px;
+  margin-top: -1px; /* seamless connection to card */
+  border-radius: 0 0 30px 30px;
+  /* Rich gradient reflection mimicking card's video light */
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.06) 0%,
-    rgba(255, 255, 255, 0.01) 40%,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(180, 150, 200, 0.10) 15%,
+    rgba(140, 110, 160, 0.06) 35%,
+    rgba(100, 80, 120, 0.03) 60%,
     transparent 100%
   );
-  /* Vertical mask: visible at top, fully transparent at bottom */
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%);
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%);
-  /* Subtle blur to soften the reflection */
-  filter: blur(2px);
+  /* Smooth fade mask: highly visible at top, transparent at bottom */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.5) 30%,
+    rgba(0, 0, 0, 0.15) 70%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.5) 30%,
+    rgba(0, 0, 0, 0.15) 70%,
+    transparent 100%
+  );
+  /* Strong blur for glossy floor appearance */
+  filter: blur(12px);
   pointer-events: none;
   transform: scaleY(-1); /* vertical flip */
   transform-origin: top center;
-  opacity: 0.35;
-  transition: opacity 0.4s ease;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-top: none;
+  opacity: 0.50;
+  transition: opacity 0.4s ease, filter 0.4s ease;
+  border: none;
   overflow: hidden;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.3) inset;
 }
 
-/* Reflection brightens slightly when the card is hovered */
+/* Reflection becomes significantly more visible when card is hovered */
 .card-reflection.card-reflection-active {
-  opacity: 0.55;
+  opacity: 0.65;
+  filter: blur(10px);
+  box-shadow: 0 0 50px rgba(150, 120, 180, 0.15) inset;
 }
 
 /* ============================================================
@@ -149,7 +183,7 @@
   width: 330px;
   height: 470px;
   border-radius: 20px;
-  background: rgba(13, 13, 18, 0.78);
+  background: rgba(13, 13, 18, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -204,8 +238,17 @@
 
 /* Sibling dimming when one card is hovered */
 .category-card.sibling-dimmed {
-  opacity: 0.55;
-  filter: brightness(0.8) contrast(0.95);
+  opacity: 0.8;
+  filter: brightness(0.75) contrast(0.95);
+}
+
+.category-card.sibling-dimmed .card-video-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.50) 0%,
+    rgba(0, 0, 0, 0.60) 50%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
 }
 
 /* Hover Physics: Smoothly rise ABOVE the other cards like picking from a deck */
@@ -331,7 +374,7 @@
 
 .card-title {
   position: absolute;
-  left: 32px;
+  left: 16px;
   top: 68px;
   writing-mode: vertical-rl;
   text-orientation: upright;
@@ -346,8 +389,8 @@
   white-space: nowrap;
   z-index: 4;
   transition: color 0.3s ease;
-  max-height: 350px;
-  overflow: hidden;
+  max-height: 500px;
+  overflow: visible;
 }
 
 .category-card.is-hovered .card-title {
