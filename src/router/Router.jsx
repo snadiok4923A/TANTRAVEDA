@@ -6,18 +6,14 @@ const RouterContext = createContext(null);
 const rawBase = import.meta.env.BASE_URL || '/';
 export const BASE_URL = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
 
-/**
- * Normalizes full window pathname into a clean app route.
- * E.g., '/TANTRAVEDA/start' -> '/start'
- *       '/start' -> '/start'
- *       '/' -> '/'
- */
+// Normalizes full window pathname into a clean app route.
+// Handles hash-based routes.
 export function normalizePath(fullPath) {
   let path = fullPath || '/';
-  
+
   // Handle hash-based routes if present
   if (window.location.hash && window.location.hash.startsWith('#/')) {
-    path = window.location.hash.slice(1);
+    path = window.location.hash.slice(1); // remove leading '#'
   } else if (BASE_URL !== '/' && path.startsWith(BASE_URL)) {
     path = path.slice(BASE_URL.length - 1);
   }
@@ -30,39 +26,36 @@ export function normalizePath(fullPath) {
   return path || '/';
 }
 
-/**
- * Converts a clean app route into the full URL path with base prefix.
- */
+// Converts a clean app route into the full URL path with base prefix and hash.
 export function toFullPath(appRoute) {
-  const cleanRoute = appRoute.startsWith('/') ? appRoute.slice(1) : appRoute;
-  if (!cleanRoute) return BASE_URL;
-  return `${BASE_URL}${cleanRoute}`;
+  const route = appRoute.startsWith('/') ? appRoute : `/${appRoute}`;
+  return `${BASE_URL}#${route}`;
 }
 
+// RouterProvider component
 export function RouterProvider({ children }) {
   const [currentPath, setCurrentPath] = useState(() => normalizePath(window.location.pathname));
 
   useEffect(() => {
-    const handlePopState = () => {
+    const handleLocationChange = () => {
       const nextPath = normalizePath(window.location.pathname);
       setCurrentPath(nextPath);
       window.scrollTo(0, 0);
     };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handleLocationChange);
+    // initial call
+    handleLocationChange();
+    return () => window.removeEventListener('hashchange', handleLocationChange);
   }, []);
 
   const navigate = useCallback((to, options = {}) => {
     const targetPath = to.startsWith('/') ? to : `/${to}`;
-    const fullTarget = toFullPath(targetPath);
-
+    const fullTarget = `#${targetPath}`; // hash part only
     if (options.replace) {
-      window.history.replaceState(null, '', fullTarget);
+      window.location.replace(fullTarget);
     } else {
-      window.history.pushState(null, '', fullTarget);
+      window.location.hash = fullTarget;
     }
-
     setCurrentPath(targetPath);
     if (!options.preventScrollReset) {
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -76,6 +69,7 @@ export function RouterProvider({ children }) {
   );
 }
 
+// Hooks
 export function useRouter() {
   const context = useContext(RouterContext);
   if (!context) {
@@ -94,6 +88,7 @@ export function useLocation() {
   return { pathname: currentPath };
 }
 
+// Link component
 export function Link({ to, children, className = '', style = {}, onClick, ...rest }) {
   const { navigate, currentPath } = useRouter();
   const isActive = currentPath === to;
