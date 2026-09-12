@@ -8,7 +8,6 @@ export default function CategoryCard({
   index,
   isHovered,
   isDimmed,
-  isExpanding,
   onHover,
   onLeave,
   onClick,
@@ -21,8 +20,6 @@ export default function CategoryCard({
     '--card-gradient': category.gradient
   };
 
-  // All categories currently use the same Cloudinary video.
-  // Replace individual URLs here later when the remaining videos are uploaded.
   const videoSrc = CLOUDINARY_URL;
 
   const handleClick = (e) => {
@@ -34,7 +31,7 @@ export default function CategoryCard({
     <div
       className={`category-card ${isHovered ? 'is-hovered' : ''} ${
         isDimmed ? 'sibling-dimmed' : ''
-      } ${isExpanding ? 'expanding' : ''}`}
+      }`}
       style={cardStyle}
       onMouseEnter={() => onHover(category.id)}
       onMouseLeave={onLeave}
@@ -64,7 +61,6 @@ export default function CategoryCard({
             <source src={videoSrc} type="video/mp4" />
           </video>
 
-          {/* Dark overlay for text readability */}
           <div className="card-video-overlay" aria-hidden="true" />
         </>
       )}
@@ -80,12 +76,10 @@ export default function CategoryCard({
 
       {/* ── TOP BLOCK: index row + title ── */}
       <div className="card-top-block">
-        {/* Meta row: number only */}
         <div className="card-top-row">
           <span className="card-index">{category.number}</span>
         </div>
 
-        {/* Title */}
         <h3 className="card-title">{category.title}</h3>
       </div>
 

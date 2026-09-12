@@ -1,23 +1,43 @@
-import React, { useState } from 'react';
-import { useNavigate } from '../../router/Router';
+import React, { useState, useCallback } from 'react';
 import { categories } from '../../data/categories';
 import CardStack from './CardStack';
+import CategoryWindow from './CategoryWindow';
+import ResourceDetailWindow from './ResourceDetailWindow';
 import './explore.css';
 
 export default function ExplorePage() {
-  const navigate = useNavigate();
-  const [expandingCardId, setExpandingCardId] = useState(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isCategoryWindowOpen, setIsCategoryWindowOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
+  const [isDetailWindowOpen, setIsDetailWindowOpen] = useState(false);
 
-  const handleSelectCategory = (category) => {
-    if (isTransitioning) return;
-    setExpandingCardId(category.id);
-    setIsTransitioning(true);
-    setTimeout(() => {
-      navigate(category.route);
-    }, 600);
-  };
+  const handleSelectCategory = useCallback((category) => {
+    setSelectedCategory(category);
+    setIsCategoryWindowOpen(true);
+  }, []);
+
+  const handleCloseCategoryWindow = useCallback(() => {
+    setIsCategoryWindowOpen(false);
+    setSelectedCategory(null);
+    setSelectedResource(null);
+    setIsDetailWindowOpen(false);
+  }, []);
+
+  const handleSelectResource = useCallback((resource) => {
+    setSelectedResource(resource);
+    setIsDetailWindowOpen(true);
+  }, []);
+
+  const handleCloseDetailWindow = useCallback(() => {
+    setIsDetailWindowOpen(false);
+    setSelectedResource(null);
+  }, []);
+
+  const handleBackFromDetail = useCallback(() => {
+    setIsDetailWindowOpen(false);
+    setSelectedResource(null);
+  }, []);
 
   const filteredCategories = categories.filter(category => 
     category.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -40,9 +60,24 @@ export default function ExplorePage() {
       <CardStack
         categories={filteredCategories}
         onSelectCategory={handleSelectCategory}
-        expandingCardId={expandingCardId}
-        isTransitioning={isTransitioning}
       />
+      {selectedCategory && (
+        <CategoryWindow
+          category={selectedCategory}
+          isOpen={isCategoryWindowOpen}
+          onClose={handleCloseCategoryWindow}
+          onResourceClick={handleSelectResource}
+        />
+      )}
+      {selectedResource && selectedCategory && (
+        <ResourceDetailWindow
+          resource={selectedResource}
+          category={selectedCategory}
+          isOpen={isDetailWindowOpen}
+          onClose={handleCloseDetailWindow}
+          onBack={handleBackFromDetail}
+        />
+      )}
     </div>
   );
 }
