@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import ResourceCard from './ResourceCard';
+import CompactResourceCard from './CompactResourceCard';
 
 export default function CategoryWindow({ category, isOpen, onClose, onResourceClick }) {
   const windowRef = useRef(null);
-  const scrollContainerRef = useRef(null);
+  const fileScrollRef = useRef(null);
+  const linkScrollRef = useRef(null);
   const previousActiveElement = useRef(null);
-  const isDragging = useRef(false);
+  const isDraggingFile = useRef(false);
+  const isDraggingLink = useRef(false);
   const dragStartX = useRef(0);
   const scrollLeftStart = useRef(0);
 
@@ -39,57 +41,57 @@ export default function CategoryWindow({ category, isOpen, onClose, onResourceCl
     }
   };
 
-  const handleWheel = useCallback((e) => {
+  const createWheelHandler = (scrollRef) => useCallback((e) => {
     if (e.deltaY !== 0) {
       e.preventDefault();
-      scrollContainerRef.current.scrollBy({
+      scrollRef.current?.scrollBy({
         left: e.deltaY,
         behavior: 'auto'
       });
     }
   }, []);
 
-  const handleMouseDown = (e) => {
+  const createMouseDownHandler = (scrollRef, isDraggingRef) => (e) => {
     if (e.button !== 0) return;
-    isDragging.current = true;
+    isDraggingRef.current = true;
     dragStartX.current = e.clientX;
-    scrollLeftStart.current = scrollContainerRef.current.scrollLeft;
-    scrollContainerRef.current.style.cursor = 'grabbing';
-    scrollContainerRef.current.style.scrollBehavior = 'auto';
+    scrollLeftStart.current = scrollRef.current?.scrollLeft || 0;
+    scrollRef.current.style.cursor = 'grabbing';
+    scrollRef.current.style.scrollBehavior = 'auto';
   };
 
-  const handleMouseMove = (e) => {
-    if (!isDragging.current) return;
+  const createMouseMoveHandler = (scrollRef, isDraggingRef) => (e) => {
+    if (!isDraggingRef.current) return;
     e.preventDefault();
     const walk = (e.clientX - dragStartX.current) * 1.5;
-    scrollContainerRef.current.scrollLeft = scrollLeftStart.current - walk;
+    scrollRef.current.scrollLeft = scrollLeftStart.current - walk;
   };
 
-  const handleMouseUp = () => {
-    if (isDragging.current) {
-      isDragging.current = false;
-      scrollContainerRef.current.style.cursor = 'grab';
-      scrollContainerRef.current.style.scrollBehavior = 'smooth';
+  const createMouseUpHandler = (scrollRef, isDraggingRef) => () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      scrollRef.current.style.cursor = 'grab';
+      scrollRef.current.style.scrollBehavior = 'smooth';
     }
   };
 
-  const handleTouchStart = (e) => {
-    isDragging.current = true;
+  const createTouchStartHandler = (scrollRef, isDraggingRef) => (e) => {
+    isDraggingRef.current = true;
     dragStartX.current = e.touches[0].clientX;
-    scrollLeftStart.current = scrollContainerRef.current.scrollLeft;
-    scrollContainerRef.current.style.scrollBehavior = 'auto';
+    scrollLeftStart.current = scrollRef.current?.scrollLeft || 0;
+    scrollRef.current.style.scrollBehavior = 'auto';
   };
 
-  const handleTouchMove = (e) => {
-    if (!isDragging.current) return;
+  const createTouchMoveHandler = (scrollRef, isDraggingRef) => (e) => {
+    if (!isDraggingRef.current) return;
     const walk = (e.touches[0].clientX - dragStartX.current) * 1.5;
-    scrollContainerRef.current.scrollLeft = scrollLeftStart.current - walk;
+    scrollRef.current.scrollLeft = scrollLeftStart.current - walk;
   };
 
-  const handleTouchEnd = () => {
-    if (isDragging.current) {
-      isDragging.current = false;
-      scrollContainerRef.current.style.scrollBehavior = 'smooth';
+  const createTouchEndHandler = (scrollRef, isDraggingRef) => () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      scrollRef.current.style.scrollBehavior = 'smooth';
     }
   };
 
@@ -100,6 +102,9 @@ export default function CategoryWindow({ category, isOpen, onClose, onResourceCl
     '--cat-secondary': category.secondaryAccent,
     '--cat-glow': category.glowColor
   };
+
+  const files = category.resources.filter(r => r.type === 'file');
+  const links = category.resources.filter(r => r.type === 'link');
 
   return (
     <div
@@ -138,28 +143,79 @@ export default function CategoryWindow({ category, isOpen, onClose, onResourceCl
 
         <div className="category-window-divider" aria-hidden="true" />
 
-        <div
-          ref={scrollContainerRef}
-          className="category-window-resources"
-          onWheel={handleWheel}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          style={{ cursor: 'grab' }}
-        >
-          {category.resources.map((resource, index) => (
-            <ResourceCard
-              key={resource.id || index}
-              resource={resource}
-              onClick={onResourceClick}
-              accentColor={category.accentColor}
-              glowColor={category.glowColor}
-            />
-          ))}
+        <div className="category-window-body">
+          {links.length > 0 && (
+            <section className="category-window-panel" aria-labelledby="links-panel-heading">
+              <header className="category-window-panel-header">
+                <span id="links-panel-heading" className="category-window-panel-title">LINKS</span>
+              </header>
+              <div
+                ref={linkScrollRef}
+                className="category-window-panel-scroll"
+                onWheel={createWheelHandler(linkScrollRef)}
+                onMouseDown={createMouseDownHandler(linkScrollRef, isDraggingLink)}
+                onMouseMove={createMouseMoveHandler(linkScrollRef, isDraggingLink)}
+                onMouseUp={createMouseUpHandler(linkScrollRef, isDraggingLink)}
+                onMouseLeave={createMouseUpHandler(linkScrollRef, isDraggingLink)}
+                onTouchStart={createTouchStartHandler(linkScrollRef, isDraggingLink)}
+                onTouchMove={createTouchMoveHandler(linkScrollRef, isDraggingLink)}
+                onTouchEnd={createTouchEndHandler(linkScrollRef, isDraggingLink)}
+                style={{ cursor: 'grab' }}
+              >
+                {links.map((resource, index) => (
+                  <CompactResourceCard
+                    key={resource.id || index}
+                    resource={resource}
+                    onClick={onResourceClick}
+                    accentColor={category.accentColor}
+                    glowColor={category.glowColor}
+                    variant="link"
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {files.length > 0 && (
+            <section className="category-window-panel" aria-labelledby="files-panel-heading">
+              <header className="category-window-panel-header">
+                <span id="files-panel-heading" className="category-window-panel-title">FILES</span>
+              </header>
+              <div
+                ref={fileScrollRef}
+                className="category-window-panel-scroll"
+                onWheel={createWheelHandler(fileScrollRef)}
+                onMouseDown={createMouseDownHandler(fileScrollRef, isDraggingFile)}
+                onMouseMove={createMouseMoveHandler(fileScrollRef, isDraggingFile)}
+                onMouseUp={createMouseUpHandler(fileScrollRef, isDraggingFile)}
+                onMouseLeave={createMouseUpHandler(fileScrollRef, isDraggingFile)}
+                onTouchStart={createTouchStartHandler(fileScrollRef, isDraggingFile)}
+                onTouchMove={createTouchMoveHandler(fileScrollRef, isDraggingFile)}
+                onTouchEnd={createTouchEndHandler(fileScrollRef, isDraggingFile)}
+                style={{ cursor: 'grab' }}
+              >
+                {files.map((resource, index) => (
+                  <CompactResourceCard
+                    key={resource.id || index}
+                    resource={resource}
+                    onClick={onResourceClick}
+                    accentColor={category.accentColor}
+                    glowColor={category.glowColor}
+                    variant="file"
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {files.length === 0 && links.length === 0 && (
+            <div className="category-window-empty">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <p>No resources available for this category yet.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

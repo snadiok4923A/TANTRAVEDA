@@ -1516,8 +1516,9 @@
 .category-window {
   position: relative;
   width: 100%;
-  max-width: 980px;
-  max-height: 90vh;
+  max-width: 1200px;
+  /* Explicit height: window is viewport-aware but never taller than needed */
+  height: min(82vh, 760px);
   background: linear-gradient(
     135deg,
     rgba(18, 18, 26, 0.92) 0%,
@@ -1781,6 +1782,290 @@
 
 .category-window-resources .resource-card:hover .resource-card-action svg {
   transform: scale(1.15);
+}
+
+/* ============================================================
+   CATEGORY WINDOW — Compact Panel Layout (Links + Files)
+   ============================================================ */
+
+.category-window-body {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  overflow-y: auto;
+  /* padding leaves breathing room around the two panels */
+  padding: 1rem 1.25rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* panels stack from the TOP, never centered */
+  align-items: stretch;        /* panels fill the full width */
+  gap: 0.875rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cat-accent, #a78bfa) transparent;
+}
+
+.category-window-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-window-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-window-body::-webkit-scrollbar-thumb {
+  background: var(--cat-accent, #a78bfa);
+  border-radius: 3px;
+}
+
+.category-window-body::-webkit-scrollbar-thumb:hover {
+  background: var(--cat-secondary, #8b5cf6);
+}
+
+.category-window-panel {
+  /* flex:1 1 auto — the panel grows to share available body height.
+     Both panels split the remaining space evenly, filling the window
+     while still leaving a small bottom margin from the body padding. */
+  flex: 1 1 auto;
+  min-height: 0;  /* override any inherited min-height */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 0.75rem 0.875rem;
+  animation: categoryPanelFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.category-window-panel:nth-child(1) { animation-delay: 0.05s; }
+.category-window-panel:nth-child(2) { animation-delay: 0.1s; }
+
+@keyframes categoryPanelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-window-panel-header {
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.category-window-panel-title {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cat-accent, #a78bfa);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.12rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.category-window-panel-scroll {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;           /* NEVER wrap into a second row */
+  justify-content: flex-start; /* cards start at the LEFT edge */
+  /* align-items:center — cards sit naturally in the middle of the
+     taller panel without being stretched or centered vertically
+     outside the panel. */
+  align-items: center;
+  gap: 0.625rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1 1 auto;  /* row fills the panel's available height */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* hide scrollbar visually; scrolling still works */
+  padding-bottom: 0.25rem;
+}
+
+.category-window-panel-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.category-window-panel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-window-panel-scroll::-webkit-scrollbar-thumb {
+  background: var(--cat-accent, #a78bfa);
+  border-radius: 2px;
+}
+
+.category-window-panel-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--cat-secondary, #8b5cf6);
+}
+
+.category-window-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.category-window-empty svg {
+  opacity: 0.4;
+}
+
+.category-window-empty p {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ============================================================
+   COMPACT RESOURCE CARD (CategoryWindow only)
+   ============================================================ */
+
+.compact-resource-card {
+  /* Fixed width AND fixed height — this is the key.
+     A fixed height pins the scroll row to a known size,
+     which prevents the panel from growing unexpectedly. */
+  flex: 0 0 150px;
+  width: 150px;
+  height: 128px;       /* fixed — not min-height */
+  scroll-snap-align: start;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.375rem;
+  padding: 0.625rem 0.5rem;
+  background: rgba(20, 20, 28, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  text-align: center;
+  overflow: hidden; /* clip anything that might overflow the fixed height */
+}
+
+.compact-resource-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.5),
+    0 0 24px var(--resource-glow, rgba(167, 139, 250, 0.15));
+}
+
+.compact-resource-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  /* no margin-top — card is fixed height, every pixel counts */
+}
+
+.compact-resource-icon.file-icon {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%);
+  color: var(--resource-accent, #a78bfa);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+.compact-resource-icon.link-icon {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(14, 165, 233, 0.1) 100%);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.compact-resource-title {
+  font-family: 'Bruno Ace', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: center;
+  padding: 0 0.25rem;
+}
+
+.compact-resource-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 0.125rem;
+}
+
+.compact-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #000;
+  background: var(--resource-accent, #a78bfa);
+  border: none;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+}
+
+.compact-download-btn:hover {
+  box-shadow: 0 0 20px var(--resource-glow, rgba(167, 139, 250, 0.5));
+  transform: translateY(-1px);
+}
+
+.compact-download-btn:focus-visible {
+  outline: 2px solid var(--resource-accent, #a78bfa);
+  outline-offset: 2px;
+}
+
+.compact-link-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin: 0 auto;
+}
+
+.compact-link-btn:hover {
+  background: var(--resource-accent, #a78bfa);
+  border-color: var(--resource-accent, #a78bfa);
+  color: #000;
+  box-shadow: 0 0 20px var(--resource-glow, rgba(167, 139, 250, 0.4));
+  transform: scale(1.05);
+}
+
+.compact-link-btn:focus-visible {
+  outline: 2px solid var(--resource-accent, #a78bfa);
+  outline-offset: 2px;
 }
 
 /* ============================================================
@@ -2195,20 +2480,54 @@
 @media (max-width: 1024px) {
   .category-window {
     max-width: 100%;
-    max-height: 92vh;
+    height: min(85vh, 720px);
     border-radius: 24px;
   }
   
   .category-window-header {
-    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    padding: 1.25rem 1.5rem 0.75rem 1.5rem;
   }
   
-  .category-window-resources {
-    padding: 1.25rem 1.5rem 1.5rem 1.5rem;
+  .category-window-body {
+    padding: 0.875rem 1rem 1.25rem 1rem;
+    gap: 0.75rem;
   }
   
-  .category-window-resources .resource-card {
-    flex: 0 0 260px;
+  .category-window-panel {
+    padding: 0.75rem 0.875rem;
+    border-radius: 12px;
+  }
+  
+  .category-window-panel-title {
+    font-size: 0.55rem;
+    padding: 0.1rem 0.4rem;
+  }
+  
+  .compact-resource-card {
+    flex: 0 0 140px;
+    width: 140px;
+    height: 118px; /* fixed height at tablet size */
+    padding: 0.5rem 0.4rem;
+  }
+  
+  .compact-resource-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+  }
+  
+  .compact-resource-title {
+    font-size: 0.68rem;
+  }
+  
+  .compact-download-btn {
+    font-size: 0.52rem;
+    padding: 0.35rem 0.7rem;
+  }
+  
+  .compact-link-btn {
+    width: 36px;
+    height: 36px;
   }
   
   .resource-detail-window {
@@ -2233,7 +2552,7 @@
   }
   
   .category-window {
-    max-height: 95vh;
+    height: 92vh;
     border-radius: 24px 24px 0 0;
     animation: categoryWindowSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
@@ -2250,25 +2569,53 @@
   }
   
   .category-window-header {
-    padding: 1.25rem 1.25rem 0.75rem 1.25rem;
+    padding: 1rem 1.25rem 0.5rem 1.25rem;
   }
   
   .category-window-title {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
   }
   
-  .category-window-resources {
-    padding: 1rem 1.25rem 1.5rem 1.25rem;
+  .category-window-body {
+    padding: 0.75rem 1rem 1.25rem 1rem;
+    gap: 0.5rem;
   }
   
-  .category-window-resources .resource-card {
-    flex: 0 0 240px;
-    padding: 1rem;
+  .category-window-panel-title {
+    font-size: 0.5rem;
+    padding: 0.08rem 0.35rem;
+  }
+  
+  .compact-resource-card {
+    flex: 0 0 128px;
+    width: 128px;
+    height: 110px; /* fixed height on mobile */
+    padding: 0.45rem 0.375rem;
+  }
+  
+  .compact-resource-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+  
+  .compact-resource-title {
+    font-size: 0.62rem;
+  }
+  
+  .compact-download-btn {
+    font-size: 0.5rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .compact-link-btn {
+    width: 32px;
+    height: 32px;
   }
   
   .category-window-close {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
   }
   
   .resource-detail-backdrop {
@@ -2281,35 +2628,5 @@
     border-radius: 20px 20px 0 0;
     animation: resourceDetailSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-  
-  @keyframes resourceDetailSlideUp {
-    from {
-      opacity: 0;
-      transform: translateY(100%);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .resource-detail-header {
-    padding: 1rem 1rem 0.75rem 1rem;
-  }
-  
-  .resource-detail-title {
-    font-size: 1.1rem;
-  }
-  
-  .resource-detail-content {
-    padding: 1rem 1.25rem 1.5rem 1.25rem;
-  }
-  
-  .resource-detail-youtube-row {
-    gap: 0.5rem;
-  }
-  
-  .youtube-thumbnail {
-    flex: 0 0 160px;
-  }
 }
+
