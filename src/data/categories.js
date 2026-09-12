@@ -48,13 +48,100 @@ export const categories = [
           { title: 'Blender Geometry Nodes', videoId: 'X5aW9Qxh5WQ' }
         ]
       },
-      {
-        id: 'github',
-        title: 'GitHub',
-        type: 'link',
-        description: 'Discover, share, and build open-source software.',
-        url: 'https://github.com/'
-      }
+{
+          id: 'github',
+          title: 'GitHub',
+          type: 'link',
+          description: 'Discover, share, and build open-source software.',
+          url: 'https://github.com/'
+        },
+        {
+          id: 'unsplash',
+          title: 'Unsplash',
+          type: 'link',
+          description: 'High-resolution photography for creative and commercial projects.',
+          url: 'https://unsplash.com/'
+        },
+        {
+          id: 'nasa-images',
+          title: 'NASA Image and Video Library',
+          type: 'link',
+          description: "Search NASA's public archive of images, audio, and video.",
+          url: 'https://images.nasa.gov/'
+        },
+        {
+          id: 'mdn',
+          title: 'MDN Web Docs',
+          type: 'link',
+          description: 'Reference documentation for web technologies and standards.',
+          url: 'https://developer.mozilla.org/'
+        },
+        {
+          id: 'internet-archive',
+          title: 'Internet Archive',
+          type: 'link',
+          description: 'A public-domain and Creative Commons film collection.',
+          url: 'https://archive.org/details/feature_films'
+        },
+        {
+          id: 'adobe',
+          title: 'Adobe',
+          type: 'link',
+          description: 'Creative software and digital solutions for creators.',
+          url: 'https://www.adobe.com/'
+        },
+        {
+          id: 'figma',
+          title: 'Figma',
+          type: 'link',
+          description: 'Browser-based design tool for collaborative UI/UX work.',
+          url: 'https://www.figma.com/'
+        },
+        {
+          id: 'premiere-pro',
+          title: 'Adobe Premiere Pro',
+          type: 'file',
+          description: 'Industry-leading video editing software for professionals.',
+          url: 'https://adobe.com/products/premiere.html',
+          fileType: 'APP',
+          fileSize: 'Download'
+        },
+        {
+          id: 'after-effects',
+          title: 'Adobe After Effects',
+          type: 'file',
+          description: 'Motion graphics and visual effects creation software.',
+          url: 'https://adobe.com/products/aftereffects.html',
+          fileType: 'APP',
+          fileSize: 'Download'
+        },
+        {
+          id: 'python',
+          title: 'Python',
+          type: 'file',
+          description: 'High-level programming language for general-purpose development.',
+          url: 'https://www.python.org/downloads/',
+          fileType: 'PKG',
+          fileSize: 'Latest'
+        },
+        {
+          id: 'davinci-resolve',
+          title: 'DaVinci Resolve',
+          type: 'file',
+          description: 'Professional video editing and color grading software.',
+          url: 'https://www.blackmagicdesign.com/products/davinciresolve/',
+          fileType: 'APP',
+          fileSize: 'Download'
+        },
+        {
+          id: 'blender',
+          title: 'Blender',
+          type: 'file',
+          description: 'Open-source 3D creation suite and release archive.',
+          url: 'https://www.blender.org/download/',
+          fileType: 'APP',
+          fileSize: 'Download'
+        }
     ]
   },
   {
