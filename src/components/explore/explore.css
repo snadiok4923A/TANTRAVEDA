@@ -1822,14 +1822,17 @@
 }
 
 .category-window-panel {
-  /* flex:1 1 auto — the panel grows to share available body height.
-     Both panels split the remaining space evenly, filling the window
-     while still leaving a small bottom margin from the body padding. */
+  /* Section container stays FIXED — never expands with card count,
+     never creates page-level horizontal overflow. */
   flex: 1 1 auto;
   min-height: 0;  /* override any inherited min-height */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden; /* clip any oversized children */
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
@@ -1869,40 +1872,37 @@
   display: inline-block;
 }
 
-.category-window-panel-scroll {
+/* Card scroll viewport — the ONLY element that scrolls horizontally.
+   width:100% + overflow-x:auto keeps the section fixed while the
+   cards can extend beyond the viewport internally. */
+.category-window-panel-viewport {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* hide scrollbar visually; scrolling still works */
+}
+
+.category-window-panel-viewport::-webkit-scrollbar {
+  height: 0;
+}
+
+/* Card row — cards MUST stay in one horizontal line, never wrap. */
+.category-window-panel-row {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;           /* NEVER wrap into a second row */
   justify-content: flex-start; /* cards start at the LEFT edge */
-  /* align-items:center — cards sit naturally in the middle of the
-     taller panel without being stretched or centered vertically
-     outside the panel. */
   align-items: center;
+  width: max-content;          /* row extends beyond viewport internally */
+  min-width: max-content;
   gap: 0.625rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  flex: 1 1 auto;  /* row fills the panel's available height */
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* hide scrollbar visually; scrolling still works */
-  padding-bottom: 0.25rem;
-}
-
-.category-window-panel-scroll::-webkit-scrollbar {
-  height: 4px;
-}
-
-.category-window-panel-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.category-window-panel-scroll::-webkit-scrollbar-thumb {
-  background: var(--cat-accent, #a78bfa);
-  border-radius: 2px;
-}
-
-.category-window-panel-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--cat-secondary, #8b5cf6);
 }
 
 .category-window-empty {

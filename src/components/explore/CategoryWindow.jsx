@@ -42,12 +42,16 @@ export default function CategoryWindow({ category, isOpen, onClose, onResourceCl
   };
 
   const createWheelHandler = (scrollRef) => useCallback((e) => {
+    // Convert vertical wheel delta into horizontal scroll ONLY while
+    // the pointer is over this card viewport and it can actually scroll.
     if (e.deltaY !== 0) {
-      e.preventDefault();
-      scrollRef.current?.scrollBy({
-        left: e.deltaY,
-        behavior: 'auto'
-      });
+      const el = scrollRef.current;
+      if (!el) return;
+      const canScroll = el.scrollWidth > el.clientWidth;
+      if (canScroll) {
+        e.preventDefault();
+        el.scrollLeft += e.deltaY;
+      }
     }
   }, []);
 
@@ -151,7 +155,7 @@ export default function CategoryWindow({ category, isOpen, onClose, onResourceCl
               </header>
               <div
                 ref={linkScrollRef}
-                className="category-window-panel-scroll"
+                className="category-window-panel-viewport"
                 onWheel={createWheelHandler(linkScrollRef)}
                 onMouseDown={createMouseDownHandler(linkScrollRef, isDraggingLink)}
                 onMouseMove={createMouseMoveHandler(linkScrollRef, isDraggingLink)}
@@ -162,16 +166,18 @@ export default function CategoryWindow({ category, isOpen, onClose, onResourceCl
                 onTouchEnd={createTouchEndHandler(linkScrollRef, isDraggingLink)}
                 style={{ cursor: 'grab' }}
               >
-                {links.map((resource, index) => (
-                  <CompactResourceCard
-                    key={resource.id || index}
-                    resource={resource}
-                    onClick={onResourceClick}
-                    accentColor={category.accentColor}
-                    glowColor={category.glowColor}
-                    variant="link"
-                  />
-                ))}
+                <div className="category-window-panel-row">
+                  {links.map((resource, index) => (
+                    <CompactResourceCard
+                      key={resource.id || index}
+                      resource={resource}
+                      onClick={onResourceClick}
+                      accentColor={category.accentColor}
+                      glowColor={category.glowColor}
+                      variant="link"
+                    />
+                  ))}
+                </div>
               </div>
             </section>
           )}
@@ -183,7 +189,7 @@ export default function CategoryWindow({ category, isOpen, onClose, onResourceCl
               </header>
               <div
                 ref={fileScrollRef}
-                className="category-window-panel-scroll"
+                className="category-window-panel-viewport"
                 onWheel={createWheelHandler(fileScrollRef)}
                 onMouseDown={createMouseDownHandler(fileScrollRef, isDraggingFile)}
                 onMouseMove={createMouseMoveHandler(fileScrollRef, isDraggingFile)}
@@ -194,16 +200,18 @@ export default function CategoryWindow({ category, isOpen, onClose, onResourceCl
                 onTouchEnd={createTouchEndHandler(fileScrollRef, isDraggingFile)}
                 style={{ cursor: 'grab' }}
               >
-                {files.map((resource, index) => (
-                  <CompactResourceCard
-                    key={resource.id || index}
-                    resource={resource}
-                    onClick={onResourceClick}
-                    accentColor={category.accentColor}
-                    glowColor={category.glowColor}
-                    variant="file"
-                  />
-                ))}
+                <div className="category-window-panel-row">
+                  {files.map((resource, index) => (
+                    <CompactResourceCard
+                      key={resource.id || index}
+                      resource={resource}
+                      onClick={onResourceClick}
+                      accentColor={category.accentColor}
+                      glowColor={category.glowColor}
+                      variant="file"
+                    />
+                  ))}
+                </div>
               </div>
             </section>
           )}
