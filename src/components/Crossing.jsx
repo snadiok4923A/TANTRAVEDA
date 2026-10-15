@@ -3,7 +3,7 @@ import useScrollAnimation from '../hooks/useScrollAnimation';
 export default function Crossing() {
   const heading = useScrollAnimation({
     clipStart: 0.3, clipEnd: 1.0,
-    letterSpacingStart: -0.03, letterSpacingEnd: 0.14,
+    letterSpacingStart: -0.04, letterSpacingEnd: 0.04,
     scaleStart: 0.94, scaleEnd: 1,
     shiftStart: 25, shiftEnd: 0,
     rangeVH: 1.4

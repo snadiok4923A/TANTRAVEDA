@@ -3,7 +3,7 @@ import useScrollAnimation from '../hooks/useScrollAnimation';
 export default function Distortion() {
   const heading = useScrollAnimation({
     clipStart: 0.2, clipEnd: 1.0,
-    letterSpacingStart: -0.02, letterSpacingEnd: 0.10,
+    letterSpacingStart: -0.03, letterSpacingEnd: 0.04,
     scaleStart: 0.96, scaleEnd: 1,
     shiftStart: -15, shiftEnd: 0,
     rangeVH: 1.3

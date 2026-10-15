@@ -6,14 +6,14 @@ export default function Final() {
 
   const heading = useScrollAnimation({
     clipStart: 0.25, clipEnd: 1.0,
-    letterSpacingStart: -0.01, letterSpacingEnd: 0.12,
+    letterSpacingStart: -0.03, letterSpacingEnd: 0.04,
     scaleStart: 0.96, scaleEnd: 1,
     shiftStart: 10, shiftEnd: 0,
     rangeVH: 1.2
   });
   const cta = useScrollAnimation({
     clipStart: 0.15, clipEnd: 1.0,
-    letterSpacingStart: 0, letterSpacingEnd: 0.08,
+    letterSpacingStart: 0,     letterSpacingEnd: 0.04,
     scaleStart: 0.97, scaleEnd: 1,
     shiftStart: -10, shiftEnd: 0,
     rangeVH: 1.1

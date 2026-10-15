@@ -335,7 +335,7 @@
   position: absolute;
   left: 8px;
   top: 14px;
-  font-family: 'Space Grotesk', monospace;
+  font-family: var(--font-sans);
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -346,7 +346,7 @@
 
 .card-status-pill {
   display: none;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.15em;
@@ -379,7 +379,7 @@
   writing-mode: vertical-rl;
   text-orientation: upright;
   direction: rtl;
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.05rem;
   font-weight: 400;
   line-height: 0.9;
@@ -400,7 +400,7 @@
 
 .card-tagline {
   display: none;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.82rem;
   font-weight: 400;
   letter-spacing: 0.07em;
@@ -412,7 +412,7 @@
 
 .card-description {
   display: none;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.85rem;
   font-weight: 300;
   line-height: 1.6;
@@ -433,7 +433,7 @@
 }
 
 .card-tag {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.62rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -466,7 +466,7 @@
 }
 
 .card-stat-value {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   font-weight: 600;
   color: #fff;
@@ -474,7 +474,7 @@
 }
 
 .card-stat-label {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.58rem;
   color: rgba(255, 255, 255, 0.4);
   letter-spacing: 0.1em;
@@ -485,7 +485,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -552,7 +552,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.18em;
@@ -580,7 +580,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -631,7 +631,7 @@
 }
 
 .category-num-badge {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.1rem;
   padding: 0.35rem 0.9rem;
   background: rgba(255, 255, 255, 0.05);
@@ -641,7 +641,7 @@
 }
 
 .category-hero-title {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: clamp(2.2rem, 5vw, 3.8rem);
   font-weight: 400;
   letter-spacing: 0.04em;
@@ -651,7 +651,7 @@
 }
 
 .category-hero-tagline {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.1rem;
   color: var(--cat-accent, #a78bfa);
   letter-spacing: 0.08em;
@@ -661,7 +661,7 @@
 }
 
 .category-hero-desc {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.05rem;
   color: rgba(255, 255, 255, 0.7);
   line-height: 1.8;
@@ -683,14 +683,14 @@
 }
 
 .metric-number {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.4rem;
   color: #fff;
   letter-spacing: 0.05em;
 }
 
 .metric-name {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.7rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -712,14 +712,14 @@
 }
 
 .content-section-title {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.4rem;
   color: #fff;
   letter-spacing: 0.04em;
 }
 
 .content-status-indicator {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   letter-spacing: 0.15em;
   color: var(--cat-accent, #a78bfa);
@@ -758,7 +758,7 @@
 }
 
 .resource-module-version {
-  font-family: 'Space Grotesk', monospace;
+  font-family: var(--font-sans);
   font-size: 0.68rem;
   color: var(--cat-accent, #a78bfa);
   background: rgba(255, 255, 255, 0.04);
@@ -767,14 +767,14 @@
 }
 
 .resource-module-title {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.15rem;
   color: #fff;
   margin-bottom: 0.6rem;
 }
 
 .resource-module-desc {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.6);
   line-height: 1.6;
@@ -790,7 +790,7 @@
 }
 
 .module-access-badge {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -798,7 +798,7 @@
 }
 
 .module-action-link {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -1054,7 +1054,7 @@
 }
 
 .modal-category-number {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   letter-spacing: 0.15em;
   color: var(--cat-accent, #a78bfa);
@@ -1062,7 +1062,7 @@
 }
 
 .modal-category-title {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: clamp(1.5rem, 3vw, 2.2rem);
   font-weight: 400;
   letter-spacing: 0.02em;
@@ -1115,7 +1115,7 @@
 .modal-category-desc {
   position: relative;
   z-index: 10;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.65);
   line-height: 1.7;
@@ -1158,7 +1158,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -1174,7 +1174,7 @@
 }
 
 .modal-section-count {
-  font-family: 'Space Grotesk', monospace;
+  font-family: var(--font-sans);
   font-size: 0.7rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.4);
@@ -1240,7 +1240,7 @@
 }
 
 .resource-card-title {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   font-weight: 400;
   color: #ffffff;
@@ -1252,7 +1252,7 @@
 }
 
 .resource-card-desc {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.5;
@@ -1273,7 +1273,7 @@
 }
 
 .resource-type {
-  font-family: 'Space Grotesk', monospace;
+  font-family: var(--font-sans);
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -1285,13 +1285,13 @@
 }
 
 .resource-size {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.68rem;
   color: rgba(255, 255, 255, 0.4);
 }
 
 .resource-domain {
-  font-family: 'Space Grotesk', monospace;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   color: rgba(255, 255, 255, 0.45);
 }
@@ -1301,7 +1301,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -1397,7 +1397,7 @@
 }
 
 .modal-empty-state p {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   margin: 0;
 }
@@ -1581,7 +1581,7 @@
 }
 
 .category-window-number {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   letter-spacing: 0.15em;
   color: var(--cat-accent, #a78bfa);
@@ -1589,7 +1589,7 @@
 }
 
 .category-window-title {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: clamp(1.5rem, 3vw, 2.2rem);
   font-weight: 400;
   letter-spacing: 0.02em;
@@ -1731,7 +1731,7 @@
 }
 
 .category-window-resources .resource-card-title {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   font-weight: 400;
   color: #ffffff;
@@ -1743,7 +1743,7 @@
 }
 
 .category-window-resources .resource-card-desc {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.5;
@@ -1755,7 +1755,7 @@
 }
 
 .category-window-resources .resource-card-type {
-  font-family: 'Space Grotesk', monospace;
+  font-family: var(--font-sans);
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -1860,7 +1860,7 @@
 }
 
 .category-window-panel-title {
-  font-family: 'Space Grotesk', monospace;
+  font-family: var(--font-sans);
   font-size: 0.58rem;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -1921,7 +1921,7 @@
 }
 
 .category-window-empty p {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.9rem;
   margin: 0;
 }
@@ -1972,7 +1972,7 @@
 }
 
 .compact-resource-title {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   font-weight: 400;
   color: #ffffff;
@@ -1986,7 +1986,7 @@
 }
 
 .compact-resource-desc {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.5);
   margin: 0;
@@ -2168,7 +2168,7 @@
 }
 
 .resource-detail-type {
-  font-family: 'Space Grotesk', monospace;
+  font-family: var(--font-sans);
   font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -2181,7 +2181,7 @@
 }
 
 .resource-detail-title {
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-sans);
   font-size: clamp(1.1rem, 2.5vw, 1.5rem);
   font-weight: 400;
   letter-spacing: 0.02em;
@@ -2244,7 +2244,7 @@
 }
 
 .resource-detail-desc {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.7);
   line-height: 1.7;
@@ -2259,7 +2259,7 @@
 }
 
 .resource-detail-filetype {
-  font-family: 'Space Grotesk', monospace;
+  font-family: var(--font-sans);
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -2271,13 +2271,13 @@
 }
 
 .resource-detail-filesize {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.68rem;
   color: rgba(255, 255, 255, 0.45);
 }
 
 .resource-detail-domain {
-  font-family: 'Space Grotesk', monospace;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   color: rgba(255, 255, 255, 0.5);
 }
@@ -2287,7 +2287,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -2318,7 +2318,7 @@
 }
 
 .resource-detail-section-title {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -2425,7 +2425,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.62rem;
   font-weight: 600;
   color: #fff;
@@ -2584,3 +2584,22 @@
   }
 }
 
+
+/* Unified premium typography for the resource experience */
+.explore-container {
+  font-family: var(--font-sans);
+}
+
+.category-hero-title,
+.category-window-title,
+.modal-category-title,
+.card-title {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.category-hero-tagline,
+.content-section-title,
+.resource-module-title {
+  font-weight: 600;
+}
