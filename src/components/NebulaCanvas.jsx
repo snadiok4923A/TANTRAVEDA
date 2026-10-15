@@ -1,8 +1,5 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { Line2 } from 'three/examples/jsm/lines/Line2.js';
-import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
-import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import portalImage from '../assets/portal-image.jpg';
@@ -15,7 +12,7 @@ const NebulaCanvas = () => {
   const cameraRef = useRef(null);
   const rendererRef = useRef(null);
   const fibersRef = useRef([]);
-  const particleSystemRef = useRef([]);
+  const particleSystemRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0, hasMoved: false });
   const scrollRef = useRef({ current: 0, target: 0 });
   const animationFrameRef = useRef(null);
@@ -88,11 +85,10 @@ const NebulaCanvas = () => {
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
-      powerPreference: 'high-performance',
-      preserveDrawingBuffer: false
+      powerPreference: 'high-performance'
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     containerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
@@ -471,50 +467,80 @@ const NebulaCanvas = () => {
     fibersRef.current = fibers;
 
     // Build geometry with high subdivision
-    const lineGeometries = [];
+    const geometry = new THREE.BufferGeometry();
+    const positions = [];
+    const colors = [];
+    const opacities = [];
+    const indices = [];
 
-    const getPointColor = (fiber, pointIndex, energyInfluence = 0) => {
-      const edgeFade = Math.sin((pointIndex / (config.segmentsPerFiber - 1)) * Math.PI);
-      const intensity = fiber.baseOpacity * edgeFade * (1 + energyInfluence * 0.65);
-      const energyMix = energyInfluence * 0.35;
-      return [
-        (fiber.color.r * (1 - energyMix) + energyMix) * intensity,
-        (fiber.color.g * (1 - energyMix) + energyMix * 0.95) * intensity,
-        (fiber.color.b * (1 - energyMix) + energyMix) * intensity
-      ];
-    };
-
-    const material = new LineMaterial({
-      color: 0xffffff,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.92,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      linewidth: 0.72,
-      worldUnits: false,
-      alphaToCoverage: true,
-      resolution: new THREE.Vector2(window.innerWidth, window.innerHeight)
-    });
-
-    const particleSystem = fibers.map((fiber) => {
-      const geometry = new LineGeometry();
-      const positions = [];
-      const colors = [];
+    let vertexIndex = 0;
+    fibers.forEach(fiber => {
       fiber.points.forEach((point, i) => {
         positions.push(point.x, point.y, point.z);
-        colors.push(...getPointColor(fiber, i));
-      });
-      geometry.setPositions(positions);
-      geometry.setColors(colors);
-      lineGeometries.push(geometry);
+        colors.push(fiber.color.r, fiber.color.g, fiber.color.b);
 
-      const line = new Line2(geometry, material);
-      line.computeLineDistances();
-      line.frustumCulled = false;
-      scene.add(line);
-      return line;
+        // Smooth edge fade
+        const edgeFade = Math.sin((i / config.segmentsPerFiber) * Math.PI);
+        opacities.push(fiber.baseOpacity * edgeFade);
+
+        if (i < config.segmentsPerFiber - 1) {
+          indices.push(vertexIndex, vertexIndex + 1);
+        }
+        vertexIndex++;
+      });
     });
+
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geometry.setAttribute('opacity', new THREE.Float32BufferAttribute(opacities, 1));
+    geometry.setAttribute('energyBoost', new THREE.Float32BufferAttribute(new Array(positions.length / 3).fill(0), 1));
+    geometry.setIndex(indices);
+
+    // Enhanced shader for glow with energy pulse
+    const material = new THREE.ShaderMaterial({
+      vertexShader: `
+        attribute float opacity;
+        attribute float energyBoost;
+        varying vec3 vColor;
+        varying float vOpacity;
+        varying float vEnergyBoost;
+
+        void main() {
+          vColor = color;
+          vOpacity = opacity;
+          vEnergyBoost = energyBoost;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        varying float vOpacity;
+        varying float vEnergyBoost;
+
+        void main() {
+          // Base glow
+          vec3 glow = vColor * 1.8;
+
+          // Energy pulse boost
+          if (vEnergyBoost > 0.0) {
+            // Brighten towards white-lavender
+            vec3 energyColor = mix(glow, vec3(1.0, 0.95, 1.0), vEnergyBoost * 0.55);
+            glow = energyColor * (1.0 + vEnergyBoost * 0.7);
+          }
+
+          float alpha = vOpacity * (0.75 + vEnergyBoost * 0.18);
+          gl_FragColor = vec4(glow, alpha);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      vertexColors: true
+    });
+
+    const particleSystem = new THREE.LineSegments(geometry, material);
+    scene.add(particleSystem);
     particleSystemRef.current = particleSystem;
 
     // Smooth mouse tracking
@@ -562,8 +588,8 @@ const NebulaCanvas = () => {
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
-      material.resolution.set(window.innerWidth, window.innerHeight);
 
       if (portalPlaneRef.current) {
         const distanceToPortal = 28 - (-5);
@@ -663,60 +689,57 @@ const NebulaCanvas = () => {
       waveInteraction.current = interactionStrength;
 
       // 5. SECOND PASS: APPLY DISPLACEMENT AND UPDATE GEOMETRY
+      let vertexIndex = 0;
       fibers.forEach(fiber => {
         fiber.applyDisplacementAndEnergy(interactionStrength, mouseInfluence, energyPulse);
-        const fiberGeometry = particleSystem[fiber.index].geometry;
 
-        for (let i = 0; i < fiber.points.length - 1; i++) {
-          const start = fiber.points[i];
-          const end = fiber.points[i + 1];
-          const positionOffset = i * 3;
-          const colorOffset = i * 3;
-          fiberGeometry.attributes.instanceStart.array[positionOffset] = start.x;
-          fiberGeometry.attributes.instanceStart.array[positionOffset + 1] = start.y;
-          fiberGeometry.attributes.instanceStart.array[positionOffset + 2] = start.z;
-          fiberGeometry.attributes.instanceEnd.array[positionOffset] = end.x;
-          fiberGeometry.attributes.instanceEnd.array[positionOffset + 1] = end.y;
-          fiberGeometry.attributes.instanceEnd.array[positionOffset + 2] = end.z;
+        fiber.points.forEach((point, i) => {
+          const offset = vertexIndex * 3;
+          particleSystem.geometry.attributes.position.array[offset] = point.x;
+          particleSystem.geometry.attributes.position.array[offset + 1] = point.y;
+          particleSystem.geometry.attributes.position.array[offset + 2] = point.z;
 
-          let startEnergyInfluence = 0;
-          let endEnergyInfluence = 0;
+          let energyInfluence = 0;
           if (energyPulse.active) {
-            const getEnergyInfluence = (pointIndex) => {
-              const fiberProgress = pointIndex / (config.segmentsPerFiber - 1);
-              const rawProgress = energyPulse.direction > 0 ? energyPulse.progress : 1 - energyPulse.progress;
-              const energyPos = (rawProgress * 1.3) - 0.15;
-              const diff = fiberProgress - energyPos;
-              const isBehind = energyPulse.direction > 0 ? (diff < 0) : (diff > 0);
-              const width = isBehind ? 0.08 : 0.03;
-              let influence = Math.exp(-(Math.abs(diff) ** 2) / (width * width));
-
-              if (energyPulse.direction > 0 && energyPos > 0.9) {
-                influence *= Math.max(0, 1 - (energyPos - 0.9) / 0.15);
-              } else if (energyPulse.direction < 0 && energyPos < 0.1) {
-                influence *= Math.max(0, (energyPos + 0.05) / 0.15);
+            const fiberProgress = i / (config.segmentsPerFiber - 1);
+            
+            // Map the position from -0.15 to 1.15 so the energy completely enters and exits the wave
+            const rawProgress = energyPulse.direction > 0 ? energyPulse.progress : 1 - energyPulse.progress;
+            const energyPos = (rawProgress * 1.3) - 0.15;
+            
+            const diff = fiberProgress - energyPos;
+            const isBehind = energyPulse.direction > 0 ? (diff < 0) : (diff > 0);
+            
+            const dist = Math.abs(diff);
+            const leadingWidth = 0.03;
+            const trailingWidth = 0.08; // Much narrower luminous trail
+            const width = isBehind ? trailingWidth : leadingWidth;
+            
+            energyInfluence = Math.exp(-(dist * dist) / (width * width));
+            
+            // Explicit boundary fade to ensure no lingering edge shine
+            if (energyPulse.direction > 0) {
+              if (energyPos > 0.9) {
+                // Smoothly fade out the tail as the core exits (0.9 to 1.05)
+                const fade = Math.max(0, 1.0 - (energyPos - 0.9) / 0.15);
+                energyInfluence *= fade;
               }
-              return influence;
-            };
-
-            startEnergyInfluence = getEnergyInfluence(i);
-            endEnergyInfluence = getEnergyInfluence(i + 1);
+            } else {
+              if (energyPos < 0.1) {
+                // Smoothly fade out the tail as the core exits (0.1 down to -0.05)
+                const fade = Math.max(0, (energyPos + 0.05) / 0.15);
+                energyInfluence *= fade;
+              }
+            }
           }
 
-          const startColor = getPointColor(fiber, i, startEnergyInfluence);
-          const endColor = getPointColor(fiber, i + 1, endEnergyInfluence);
-          fiberGeometry.attributes.instanceColorStart.array[colorOffset] = startColor[0];
-          fiberGeometry.attributes.instanceColorStart.array[colorOffset + 1] = startColor[1];
-          fiberGeometry.attributes.instanceColorStart.array[colorOffset + 2] = startColor[2];
-          fiberGeometry.attributes.instanceColorEnd.array[colorOffset] = endColor[0];
-          fiberGeometry.attributes.instanceColorEnd.array[colorOffset + 1] = endColor[1];
-          fiberGeometry.attributes.instanceColorEnd.array[colorOffset + 2] = endColor[2];
-        }
-        fiberGeometry.attributes.instanceStart.needsUpdate = true;
-        fiberGeometry.attributes.instanceEnd.needsUpdate = true;
-        fiberGeometry.attributes.instanceColorStart.needsUpdate = true;
-        fiberGeometry.attributes.instanceColorEnd.needsUpdate = true;
+          particleSystem.geometry.attributes.energyBoost.array[vertexIndex] = energyInfluence;
+          vertexIndex++;
+        });
       });
+
+      particleSystem.geometry.attributes.position.needsUpdate = true;
+      particleSystem.geometry.attributes.energyBoost.needsUpdate = true;
 
       // 6. UPDATE PORTAL EFFECT
       if (portalPlane) {
@@ -742,7 +765,7 @@ const NebulaCanvas = () => {
       if (containerRef.current && renderer.domElement) {
         containerRef.current.removeChild(renderer.domElement);
       }
-      lineGeometries.forEach(lineGeometry => lineGeometry.dispose());
+      geometry.dispose();
       material.dispose();
       renderer.dispose();
     };
